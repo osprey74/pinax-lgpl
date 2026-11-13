@@ -10,23 +10,37 @@ section 6 (a) of the LGPL 2.1, and serves as the written offer under section 6 (
 
 ## What is provided
 
-For each released version of Pinax, a GitHub Release with the **same tag as the app version** contains:
+For each released version of Pinax, a GitHub Release with the **same tag as the app version** (`v<version>`) contains:
 
 - The VLCKit source code used for that version (full source, not only a link to upstream), together with the
-  patch applied by Pinax and the build script
-- The Pinax application in relinkable object form (static library / object files) and instructions for relinking
-  it with a modified VLCKit
+  patch applied by Pinax and the build scripts
+- The source code of Pinax itself for that version, so that you can build Pinax with a modified VLCKit.
+  It is provided under a **source-available license** (`SOURCE-LICENSE.md`: building and modifying for your own
+  personal use is permitted; redistribution is not). Pinax is not open source software.
 - The full text of the LGPL 2.1 ([COPYING.LGPL-2.1](COPYING.LGPL-2.1))
 
-Releases tagged `vlckit-*` contain the MobileVLCKit binary built by Pinax and the corresponding source,
-used during development.
+Releases tagged `vlckit-*` contain the MobileVLCKit binary built by Pinax and the corresponding source.
 
 ## Changes made to VLCKit
 
-Pinax builds VLCKit 3.7.5 from source instead of using the official binary.
-The only change is to disable **zvbi** (teletext decoding), because two of its files (`src/packet-830.c` and
-`src/pdc.c`) are licensed under the GPL version 2 only. The build is checked to contain no symbols from
-GPL-licensed libraries.
+Pinax builds VLCKit 3.7.5 from source instead of using the official binary, and removes code licensed under the
+GPL:
+
+- **zvbi** (teletext decoding): `src/packet-830.c` and `src/pdc.c` are GPL-2 only. Teletext goes through VLC's
+  LGPL `telx` module.
+- VLC modules with GPL-2+ sources: `rotate`, `vod_rtsp`, `stream_out_rtp`, `syslog`, `mono`,
+  `dolby_surround_decoder`, `dummy` (control)
+- The **yadif** / yadif2x deinterlace modes, and FFmpeg's AArch64 **AC-3 DSP** code. These two changes use the
+  patches published by Small Bricktory in [bop-vlckit](https://github.com/smallbricktory/bop-vlckit) (LGPL-2.1),
+  whose analysis also pointed out the GPL modules above.
+- FFmpeg's AArch64 **CRC32** assembly (`libavutil/aarch64/crc.S`, GPL-2+). CRC32 uses the C implementation.
+
+Each build is checked for symbols of GPL libraries and for the license headers of every compiled source file.
+
+### Correction
+
+The first build, `vlckit-3.7.5-pinax.1`, removed only zvbi and **still contains the GPL-2+ code listed above**,
+although this README previously said otherwise. It was never shipped in Pinax. Use `vlckit-3.7.5-pinax.2` or later.
 
 ## Retention
 
@@ -34,8 +48,8 @@ Materials for each version are kept for at least three years after distribution 
 
 ## Your rights
 
-You may modify VLCKit for your own use, relink it with Pinax, and reverse engineer Pinax to debug such
-modifications. The Pinax terms of use do not prohibit this.
+You may modify VLCKit for your own use, build Pinax with it, and reverse engineer Pinax to debug such
+modifications.
 
 ## Contact
 
